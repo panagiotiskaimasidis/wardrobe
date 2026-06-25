@@ -42,3 +42,10 @@ within each phase.
 - **Visibility enforced at the query layer** — `canViewCollection` + `getUserCollections(ownerId, viewerId)` filter to public / friends (mutual-or-either follow) / private, so profile and collection reads never leak hidden closets regardless of the calling page.
 - **Follow/unfollow front-loaded with profiles** — the follow button lives on the profile, so its action shipped here; the rest of the social graph (feed, reactions, lists) stays in Phase 5. Optimistic toggle with rollback on error.
 - **Google OAuth is a documented seam, not a dead button** — the "Continue with Google" button renders only when `GOOGLE_CLIENT_ID` is configured and points at `/api/oauth/google`, which returns a 501 explaining how to finish the flow. Keeps the dev experience clean (credentials/dev login) while leaving an obvious place to add real OAuth.
+
+## Phase 5 — Social layer
+
+- **Feed reads pre-written ActivityEvents** — `getFeed` filters events by followed actors and renders text from the denormalized `metadata`, with a single batched `collection.findMany` for links/thumbnails (no per-event queries). Cheap, chronological, resilient to deleted objects.
+- **Likes/comments are polymorphic** (`targetType` + `targetId`) so they cover both collections and items with one table each; the unique `(userId, targetType, targetId)` index makes a like an idempotent toggle.
+- **Re-save = add-to-closet from anywhere** — one `SaveToClosetButton` (catalog grid + others' collection items) reuses `addItemToCollection`, so "steal a friend's item" and "save from catalog" are the same well-tested path. The picker lazy-loads the viewer's closets via `/api/my/collections`.
+- **Optimistic social interactions** — likes and comments update locally first and reconcile/rollback on the server result, matching the snappy feel of the DnD board.

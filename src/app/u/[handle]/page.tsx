@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Pencil, Layers } from "lucide-react";
 
@@ -20,13 +21,29 @@ export async function generateMetadata({
   return { title: `@${handle}` };
 }
 
-function Stat({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="text-center">
+function Stat({
+  label,
+  value,
+  href,
+}: {
+  label: string;
+  value: number;
+  href?: string;
+}) {
+  const inner = (
+    <>
       <div className="text-lg font-semibold">{value}</div>
       <div className="text-muted-foreground text-xs">{label}</div>
-    </div>
+    </>
   );
+  if (href) {
+    return (
+      <Link href={href} className="rounded-md text-center hover:opacity-80">
+        {inner}
+      </Link>
+    );
+  }
+  return <div className="text-center">{inner}</div>;
 }
 
 export default async function ProfilePage({
@@ -83,8 +100,16 @@ export default async function ProfilePage({
           <div className="mt-4 flex gap-6">
             <Stat label="items" value={profile.counts.items} />
             <Stat label="closets" value={profile.counts.collections} />
-            <Stat label="followers" value={profile.counts.followers} />
-            <Stat label="following" value={profile.counts.following} />
+            <Stat
+              label="followers"
+              value={profile.counts.followers}
+              href={`/u/${profile.handle}/followers`}
+            />
+            <Stat
+              label="following"
+              value={profile.counts.following}
+              href={`/u/${profile.handle}/following`}
+            />
           </div>
         </div>
       </div>

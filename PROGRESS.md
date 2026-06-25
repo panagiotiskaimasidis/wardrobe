@@ -144,3 +144,29 @@ collection hiding all pass.
 
 **Next**: Phase 5 — activity feed, likes, comments, re-save, follower/following
 lists.
+
+## 2026-06-25 — Phase 5: Social layer ✅
+
+**Done**
+
+- **Activity feed** (`/feed`): chronological activity from people you follow,
+  with actor avatars, human-readable text per verb (created closet / added item
+  / followed / liked / commented), relative timestamps, thumbnails, and deep
+  links. Batched collection lookup avoids N+1. Friendly empty state.
+- **Likes & comments** on collections (`CollectionSocial`): optimistic like
+  toggle with live count, comment list with relative times, add-comment form,
+  delete-own-comment. Backed by `toggleLike` / `addComment` / `deleteComment`
+  actions that also write `liked` / `commented` activity events.
+- **Re-save**: `SaveToClosetButton` (dropdown of your closets + "new closet")
+  added to non-owned collection items **and** the catalog grid, so you can pull
+  anyone's item into your own board. Reuses `addItemToCollection`.
+- **Follower / following lists** (`/u/[handle]/followers`, `/following`) with
+  follow buttons; profile counts now link to them.
+- `/api/my/collections` powers the save-to picker.
+
+**Verification**: `lint`, `typecheck`, `test` (28), `build` pass; runtime smoke
+of feed, follower/following lists, and the my-collections API; **real-browser
+check confirmed like-toggle and comment posting work**.
+
+**Next**: Phase 6 — responsive/mobile polish, empty/loading/error states,
+accessibility, 404/500, SEO.

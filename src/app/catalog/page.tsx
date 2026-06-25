@@ -6,9 +6,11 @@ import {
   type CatalogFilters,
 } from "@/lib/queries/products";
 import { CATEGORIES, type Category } from "@/lib/constants";
+import { getCurrentUser } from "@/lib/auth/session";
 import { CatalogToolbar } from "@/components/catalog/catalog-toolbar";
 import { CatalogGrid } from "@/components/catalog/catalog-grid";
 import { CatalogPagination } from "@/components/catalog/catalog-pagination";
+import { SaveToClosetButton } from "@/components/save-to-closet-button";
 
 export const metadata: Metadata = {
   title: "Catalog",
@@ -48,9 +50,10 @@ export default async function CatalogPage({
   const sp = await searchParams;
   const filters = parseFilters(sp);
 
-  const [result, brands] = await Promise.all([
+  const [result, brands, user] = await Promise.all([
     getCatalogProducts(filters),
     getBrandsWithCounts(),
+    getCurrentUser(),
   ]);
 
   return (
@@ -66,7 +69,18 @@ export default async function CatalogPage({
 
       <CatalogToolbar brands={brands} filters={filters} />
 
-      <CatalogGrid products={result.products} />
+      <CatalogGrid
+        products={result.products}
+        renderFooter={
+          user
+            ? (p) => (
+                <div className="pt-2">
+                  <SaveToClosetButton productId={p.id} className="w-full" />
+                </div>
+              )
+            : undefined
+        }
+      />
 
       <CatalogPagination
         page={result.page}

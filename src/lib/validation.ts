@@ -86,3 +86,16 @@ export const collectionInputSchema = z.object({
 });
 
 export type CollectionInput = z.infer<typeof collectionInputSchema>;
+
+export const TARGET_TYPE_VALUES = ["collection", "collectionItem"] as const;
+
+export const commentSchema = z.object({
+  targetType: z.enum(TARGET_TYPE_VALUES),
+  targetId: z.string().min(1),
+  body: z.string().trim().min(1, "Say something").max(500),
+});
+
+export const likeSchema = z.object({
+  targetType: z.enum(TARGET_TYPE_VALUES),
+  targetId: z.string().min(1),
+});

@@ -8,11 +8,14 @@ import {
   getCollectionDetail,
   getCollectionOptions,
 } from "@/lib/queries/collections";
+import { getCollectionSocial } from "@/lib/queries/social";
 import { VISIBILITY_LABELS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { ProductCard } from "@/components/product-card";
 import { BoardEditor } from "@/components/board/board-editor";
 import { CollectionHeaderActions } from "@/components/collection-header-actions";
+import { CollectionSocial } from "@/components/collection-social";
+import { SaveToClosetButton } from "@/components/save-to-closet-button";
 
 const VIS_ICON = { public: Globe, friends: Users, private: Lock } as const;
 
@@ -44,6 +47,9 @@ export default async function CollectionDetailPage({
         (c) => c.id !== collection.id,
       )
     : [];
+
+  const social = await getCollectionSocial(collection.id, user?.id ?? null);
+  const canResave = !!user && !collection.canEdit;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
@@ -103,10 +109,29 @@ export default async function CollectionDetailPage({
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {collection.items.map((item) => (
-            <ProductCard key={item.id} product={item.product} />
+            <ProductCard
+              key={item.id}
+              product={item.product}
+              footer={
+                canResave ? (
+                  <div className="pt-2">
+                    <SaveToClosetButton
+                      productId={item.product.id}
+                      label="Save to my closet"
+                    />
+                  </div>
+                ) : undefined
+              }
+            />
           ))}
         </div>
       )}
+
+      <CollectionSocial
+        collectionId={collection.id}
+        initial={social}
+        canInteract={!!user}
+      />
     </div>
   );
 }
