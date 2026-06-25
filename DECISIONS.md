@@ -15,3 +15,14 @@ within each phase.
 - **TanStack Query for client data, server actions for mutations** — RSC for reads where natural; server actions (Zod-validated) for writes.
 - **Vitest + Testing Library for unit/component, Playwright for e2e** — per the brief.
 - **`next/font` Geist** — default from the scaffold; fetched at build time.
+
+## Phase 2 — Catalog + Add by URL
+
+- **URL-state-driven catalog** — filters/search/sort/page live in the query
+  string, so the catalog is server-rendered, shareable, and back-button-friendly. The client toolbar only mutates the URL.
+- **`node-html-parser` for metadata extraction** — tiny, fast, dependency-light HTML parser; we only read `<meta>`/`<script type=ld+json>`/`<title>`, so a full DOM (cheerio/jsdom) is overkill.
+- **Clipper reads public metadata only** — JSON-LD `Product`, Open Graph, Twitter Card, and HTML fallbacks. No scraping of body content or paywalled data; the source is always referenced by link. robots.txt is honoured (fail-open, since it's advisory and often absent), a descriptive User-Agent is sent, responses are size-capped (2 MB) and cached (10 min) to avoid hammering sites. SSRF is mitigated by blocking loopback/private/link-local hosts.
+- **Pure logic split from I/O** — parser and guards (`parse.ts`, `guards.ts`) are side-effect-free and unit-tested; only `fetch.ts` does network + `server-only`. Keeps the testable surface large and the untestable surface tiny.
+- **Clip failures degrade to manual entry** — `/api/clip` returns `ok:false` (HTTP 200) with a reason rather than erroring, and the dialog reveals an editable manual form. "Add by URL" is never a dead end.
+- **`CatalogSource` adapter seam (design only)** — the clipper is effectively the first source; affiliate/brand-feed adapters (Rakuten/Awin/Skimlinks) can implement a `search()/getProduct()/normalize()` interface later and feed the same `addClippedProduct` persistence path. Not implemented in the MVP.
+- **colorTags filtering via substring match** — stored as a JSON string; a `contains '"navy"'` LIKE is sufficient and portable for SQLite without a join table. Revisit with a real tag table if tag analytics are needed.

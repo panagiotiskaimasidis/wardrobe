@@ -4,6 +4,7 @@ import { Shirt, Search, Plus } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth/session";
 import { Button } from "@/components/ui/button";
 import { UserMenu } from "@/components/user-menu";
+import { AddByUrlButton } from "@/components/add-by-url-button";
 
 export async function SiteHeader() {
   const user = await getCurrentUser();
@@ -46,11 +47,11 @@ export async function SiteHeader() {
 
           {user ? (
             <>
-              <Button asChild size="sm" className="hidden sm:inline-flex">
-                <Link href="/catalog">
+              <AddByUrlButton>
+                <Button size="sm" className="hidden sm:inline-flex">
                   <Plus className="h-4 w-4" /> Add item
-                </Link>
-              </Button>
+                </Button>
+              </AddByUrlButton>
               <UserMenu user={user} />
             </>
           ) : (

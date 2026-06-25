@@ -50,3 +50,38 @@ test (home page renders seeded products + stats) all pass.
 
 **Next**: Phase 2 — catalog browse/search/filter pages and the "Add by URL"
 metadata clipper.
+
+## 2026-06-25 — Phase 2: Catalog + Add by URL ✅
+
+**Done**
+
+- **Catalog** at `/catalog`: server-rendered, URL-driven search + filters
+  (text, category, brand, color, sort) with pagination. Client `CatalogToolbar`
+  (debounced search, Radix selects) syncs filters to the query string;
+  `CatalogGrid` (with empty state) + `CatalogPagination`.
+- Catalog query layer: `getCatalogProducts` (filtered/paginated),
+  `getBrandsWithCounts`. SQLite-safe LIKE search; colorTags substring match.
+- **Add by URL clipper** — the "from any company" engine:
+  - Pure, tested metadata parser (`lib/clipper/parse.ts`): JSON-LD `Product`
+    → Open Graph → Twitter Card → HTML fallbacks; derives brand, price,
+    category guess, and color tags; resolves relative image URLs.
+  - Pure, tested guards (`lib/clipper/guards.ts`): SSRF host blocking,
+    URL validation, robots.txt `Disallow` parsing.
+  - Server fetcher (`lib/clipper/fetch.ts`): robots.txt respect (fail-open),
+    custom User-Agent, timeout, 2 MB cap, 10-min in-memory cache.
+  - `POST /api/clip` (auth-guarded, Zod-validated) returns a draft; on failure
+    returns `ok:false` so the UI shows the manual-entry fallback.
+  - `addClippedProduct` server action (Zod + find-or-create brand).
+  - `AddByUrlButton` dialog: paste → fetch → editable preview (image, title,
+    brand, price, currency, category, color chips, notes) → save; graceful
+    manual fallback. Wired into the header.
+- Fixed two seed bugs found via runtime testing: category assignment only hit
+  3 of 6 categories; color stepping missed half the palette. Now all 6
+  categories and all 15 filter colors have items.
+- Tests: parser (6) + guards (8) added → **28 unit tests** total.
+
+**Verification**: `lint`, `typecheck`, `test`, `build`, and runtime smoke
+tests (every filter returns correct results; clip API auth guard returns 401)
+all pass.
+
+**Next**: Phase 3 — collection CRUD and the drag-and-drop centerpiece.

@@ -23,6 +23,20 @@ export function formatPrice(
   }
 }
 
+/** Turn an arbitrary string into a URL-safe slug. */
+export function slugify(input: string): string {
+  return (
+    input
+      .toLowerCase()
+      .trim()
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 60) || "brand"
+  );
+}
+
 /** Build initials from a display name for avatar fallbacks. */
 export function initials(name: string | null | undefined): string {
   if (!name) return "?";

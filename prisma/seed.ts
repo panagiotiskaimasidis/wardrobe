@@ -125,6 +125,8 @@ const PRICE_RANGES: Record<Category, [number, number]> = {
   dresses: [60, 260],
 };
 
+// Mirror the filterable colors (src/lib/constants COMMON_COLORS) so every
+// color in the catalog filter actually has matching items.
 const COLOR_POOL = [
   "black",
   "white",
@@ -133,8 +135,11 @@ const COLOR_POOL = [
   "brown",
   "red",
   "pink",
+  "orange",
+  "yellow",
   "green",
   "blue",
+  "purple",
   "navy",
   "cream",
   "denim",
@@ -224,10 +229,12 @@ async function main() {
   let pIndex = 0;
   for (const brand of brands) {
     for (let i = 0; i < 8; i++) {
-      const category = pick(CATEGORIES, pIndex + i);
-      const name = pick(ITEM_NAMES[category], pIndex);
-      const c1 = pick(COLOR_POOL, pIndex * 2);
-      const c2 = pick(COLOR_POOL, pIndex * 3 + 1);
+      // Cycle through every category (offset per brand for variety).
+      const category = pick(CATEGORIES, pIndex + brands.indexOf(brand));
+      const name = pick(ITEM_NAMES[category], i);
+      // Steps coprime to the pool length so all colors get coverage.
+      const c1 = pick(COLOR_POOL, pIndex);
+      const c2 = pick(COLOR_POOL, pIndex * 7 + 4);
       const colorTags = c1 === c2 ? tags(c1) : tags(c1, c2);
       const created = await prisma.product.create({
         data: {
