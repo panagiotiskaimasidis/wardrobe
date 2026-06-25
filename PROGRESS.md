@@ -117,3 +117,30 @@ drag-to-add adds an item to the board.**
 
 **Next**: Phase 4 — full auth (signup, handle selection, profile pages + edit),
 and visibility enforcement on profiles.
+
+## 2026-06-25 — Phase 4: Auth + profiles ✅
+
+**Done**
+
+- **Signup** (`/signup`): name + unique handle (validated 3–20 `[a-z0-9_]`) +
+  email + password (bcrypt), auto-signs-in. Handle/email uniqueness enforced.
+- **Login** now links to signup; **Google OAuth** button appears only when
+  `GOOGLE_CLIENT_ID` is set, wired to a documented `/api/oauth/google` **stub**
+  (501 with guidance) — app stays fully usable via dev login without OAuth.
+- **Profile pages** (`/u/[handle]`): avatar, name, handle, bio, and live counts
+  (items / closets / followers / following); shows only collections the viewer
+  is allowed to see (visibility enforced).
+- **Edit profile** dialog (name, handle, bio, avatar) with handle-uniqueness
+  check; redirects when the handle changes.
+- **Follow/unfollow** pulled in alongside profiles (`lib/actions/social.ts` +
+  optimistic `FollowButton`), writing `followed` activity events. The rest of
+  the social layer (feed, likes, comments, re-save, follower lists) is Phase 5.
+- Verified visibility enforcement: a private closet is hidden from other viewers
+  on the owner's public profile.
+
+**Verification**: `lint`, `typecheck`, `test` (28), `build` pass; runtime smoke
+of profile (self vs viewer), signup, follow button, OAuth stub, and private-
+collection hiding all pass.
+
+**Next**: Phase 5 — activity feed, likes, comments, re-save, follower/following
+lists.

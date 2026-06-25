@@ -42,6 +42,43 @@ export const productDraftSchema = z.object({
 export type ProductDraftInput = z.input<typeof productDraftSchema>;
 export type ProductDraft = z.output<typeof productDraftSchema>;
 
+export const handleSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .min(3, "Handle must be at least 3 characters")
+  .max(20, "Handle must be at most 20 characters")
+  .regex(
+    /^[a-z0-9_]+$/,
+    "Handle can only use lowercase letters, numbers, and underscores",
+  );
+
+export const signupSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(80),
+  email: z.string().trim().toLowerCase().email("Enter a valid email"),
+  handle: handleSchema,
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .max(200),
+});
+
+export type SignupInput = z.infer<typeof signupSchema>;
+
+export const profileSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(80),
+  handle: handleSchema,
+  bio: z.string().trim().max(280).optional().or(z.literal("")),
+  avatarUrl: z
+    .string()
+    .trim()
+    .url("Avatar must be a valid URL")
+    .optional()
+    .or(z.literal("")),
+});
+
+export type ProfileInput = z.infer<typeof profileSchema>;
+
 export const collectionInputSchema = z.object({
   title: z.string().trim().min(1, "Give your closet a name").max(120),
   description: z.string().trim().max(500).optional().or(z.literal("")),

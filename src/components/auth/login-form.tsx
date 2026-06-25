@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -24,10 +25,12 @@ export function LoginForm({
   demoUsers,
   next,
   demoPassword,
+  googleConfigured = false,
 }: {
   demoUsers: DemoUser[];
   next: string;
   demoPassword: string;
+  googleConfigured?: boolean;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -141,6 +144,19 @@ export function LoginForm({
           <code className="font-mono">{demoPassword}</code>.
         </p>
       </form>
+
+      {googleConfigured && (
+        <Button variant="outline" asChild>
+          <a href="/api/oauth/google">Continue with Google</a>
+        </Button>
+      )}
+
+      <p className="text-muted-foreground text-center text-sm">
+        New here?{" "}
+        <Link href="/signup" className="text-foreground underline">
+          Create an account
+        </Link>
+      </p>
     </div>
   );
 }

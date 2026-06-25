@@ -36,6 +36,7 @@ export default async function LoginPage({
         demoUsers={demoUsers}
         next={next ?? "/collections"}
         demoPassword="password123"
+        googleConfigured={!!process.env.GOOGLE_CLIENT_ID}
       />
     </div>
   );

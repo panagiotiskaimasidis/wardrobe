@@ -35,3 +35,10 @@ within each phase.
 - **Optimistic DnD with server reconciliation** — add/reorder/move update local state immediately; failures toast + `router.refresh()`. The editor is remounted via a `key` derived from the server item ids so a refresh resets local state to canonical truth (avoids a props→state sync effect the lint rules flag).
 - **Dev login pulled forward into Phase 3** — collections need an owner, so a minimal one-click demo login + bcrypt credentials login was built early. The full Auth.js-style surface (signup, handle picking, profiles, OAuth stub) stays in Phase 4. Documented to keep the phase demoable without skipping ahead.
 - **Activity events written on action** (not derived) — `created_collection` / `added_item` rows are written inside the mutating actions so the Phase 5 feed is a cheap chronological read. Denormalized labels live in the event `metadata` JSON.
+
+## Phase 4 — Auth + profiles
+
+- **Handle is the public identity** — unique, lowercased `[a-z0-9_]{3,20}`, validated by a shared Zod schema reused by signup and profile edit; URLs are `/u/[handle]`.
+- **Visibility enforced at the query layer** — `canViewCollection` + `getUserCollections(ownerId, viewerId)` filter to public / friends (mutual-or-either follow) / private, so profile and collection reads never leak hidden closets regardless of the calling page.
+- **Follow/unfollow front-loaded with profiles** — the follow button lives on the profile, so its action shipped here; the rest of the social graph (feed, reactions, lists) stays in Phase 5. Optimistic toggle with rollback on error.
+- **Google OAuth is a documented seam, not a dead button** — the "Continue with Google" button renders only when `GOOGLE_CLIENT_ID` is configured and points at `/api/oauth/google`, which returns a 501 explaining how to finish the flow. Keeps the dev experience clean (credentials/dev login) while leaving an obvious place to add real OAuth.
