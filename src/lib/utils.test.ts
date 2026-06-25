@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 
-import { cn, formatPrice, initials } from "./utils";
+import { cn, formatPrice, initials, slugify } from "./utils";
 
 describe("cn", () => {
   it("merges and dedupes conflicting tailwind classes", () => {
@@ -35,5 +35,22 @@ describe("initials", () => {
   it("handles empty input", () => {
     expect(initials("")).toBe("?");
     expect(initials(null)).toBe("?");
+  });
+});
+
+describe("slugify", () => {
+  it("lowercases and hyphenates", () => {
+    expect(slugify("Atlas & Oak")).toBe("atlas-oak");
+    expect(slugify("North  Field")).toBe("north-field");
+  });
+
+  it("strips diacritics and trims separators", () => {
+    expect(slugify("Marée")).toBe("maree");
+    expect(slugify("  --Hello!!--  ")).toBe("hello");
+  });
+
+  it("falls back to 'brand' for empty/symbol-only input", () => {
+    expect(slugify("")).toBe("brand");
+    expect(slugify("!!!")).toBe("brand");
   });
 });

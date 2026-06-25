@@ -49,3 +49,10 @@ within each phase.
 - **Likes/comments are polymorphic** (`targetType` + `targetId`) so they cover both collections and items with one table each; the unique `(userId, targetType, targetId)` index makes a like an idempotent toggle.
 - **Re-save = add-to-closet from anywhere** — one `SaveToClosetButton` (catalog grid + others' collection items) reuses `addItemToCollection`, so "steal a friend's item" and "save from catalog" are the same well-tested path. The picker lazy-loads the viewer's closets via `/api/my/collections`.
 - **Optimistic social interactions** — likes and comments update locally first and reconcile/rollback on the server result, matching the snappy feel of the DnD board.
+
+## Phase 7 — Hardening + ship-ready
+
+- **e2e runs against a built app with its own seeded DB** — Playwright's `webServer` does `db:push && db:seed && build && start` with `DATABASE_URL=file:./e2e.db`, isolating tests from the dev database and exercising the real production build. `dotenv` doesn't override the injected env var, so the e2e DB target is honoured.
+- **Browser path is environment-overridable** — `PW_CHROMIUM_PATH` lets sandboxes point at a preinstalled Chromium; normal CI uses `playwright install`. Keeps the config portable.
+- **Flow 1 e2e uses the manual-entry path** — clipping a live external URL is non-deterministic (network, robots, rate limits), so the e2e drives the clip dialog's manual fallback to assert the persistence path deterministically; the parser itself is covered by unit tests.
+- **Known sandbox note** — `next/image` optimization of remote demo images (picsum/dicebear) requires outbound network; in restricted sandboxes those fetches 403 but never affect functionality or tests.

@@ -85,6 +85,17 @@ See [`.env.example`](./.env.example). The only one you may want to set for real 
 3. In `src/lib/db.ts`, swap `@prisma/adapter-better-sqlite3` for `@prisma/adapter-pg`.
 4. Run `npm run db:migrate`.
 
+## Testing
+
+- **Unit / component** (Vitest): `npm run test` — covers the URL-clipper parser,
+  SSRF/robots guards, validation schemas, and formatting helpers.
+- **End-to-end** (Playwright): `npm run test:e2e` — drives the three critical
+  flows in a real browser: clip/add an item, build a board via drag-and-drop, and
+  follow someone + see their feed. The e2e runner builds the app, spins up its
+  own seeded SQLite database (`e2e.db`), and serves it. In CI, run
+  `npx playwright install --with-deps chromium` first. If you have a preinstalled
+  Chromium, point at it with `PW_CHROMIUM_PATH=/path/to/chrome`.
+
 ## Deploying to Vercel
 
 > Not auto-deployed here. Steps:

@@ -193,3 +193,28 @@ confirms custom 404, robots.txt, and sitemap.xml render.
 
 **Next**: Phase 7 — Playwright e2e for the three critical flows, broaden unit
 coverage, finalize README/.env, document Vercel deploy.
+
+## 2026-06-25 — Phase 7: Hardening + ship-ready ✅
+
+**Done**
+
+- **Playwright e2e** for the three critical flows (`e2e/critical-flows.spec.ts`),
+  all passing in a real browser:
+  1. Add an item to the catalog (clip dialog → manual entry → appears in catalog).
+  2. Build a board via drag-and-drop (catalog item → board, item count grows).
+  3. Sign up → empty feed → follow a user → their activity appears in the feed.
+     The runner builds the app, provisions a seeded `e2e.db`, and serves it; browser
+     path is overridable via `PW_CHROMIUM_PATH` for sandboxes.
+- **Broadened unit coverage**: added `slugify` and full `validation` schema tests
+  → **40 unit tests** total (parser, guards, validation, helpers).
+- Finalized `README` (added a Testing section) and `.env.example` (added
+  `NEXT_PUBLIC_SITE_URL`); Vercel deploy steps documented.
+- Re-seeded a clean demo database.
+
+**Verification**: `lint`, `typecheck`, `test` (40), `build`, and `test:e2e` (3)
+all pass.
+
+**Status**: MVP acceptance criteria met. The app installs and runs with seeded
+data and no external setup; a user can sign in → browse/search → clip an item →
+create a closet → drag items in and reorder → set visibility → follow a user →
+see the feed → like and comment. All checks green.
