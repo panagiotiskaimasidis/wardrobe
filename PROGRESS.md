@@ -170,3 +170,26 @@ check confirmed like-toggle and comment posting work**.
 
 **Next**: Phase 6 — responsive/mobile polish, empty/loading/error states,
 accessibility, 404/500, SEO.
+
+## 2026-06-25 — Phase 6: Polish ✅
+
+**Done**
+
+- **Error/empty/loading states**: custom `not-found` (404), route `error`
+  boundary + `global-error` (500), and skeleton `loading.tsx` for catalog,
+  collections, and feed (plus reusable skeleton grids). Empty states already
+  present across catalog/closets/feed/profile.
+- **Accessibility**: skip-to-content link; keyboard-droppable DnD (KeyboardSensor)
+  and touch sensor for mobile; aria-labels on icon buttons, drag handles, and
+  filter controls; alt text on images; focus-visible rings on interactive UI.
+- **SEO**: `metadataBase`, OpenGraph + Twitter card metadata, per-route titles,
+  generated `robots.txt` (private routes disallowed) and dynamic `sitemap.xml`
+  (home, catalog, public profiles, public collections).
+- Responsive layouts throughout (grid breakpoints, sticky catalog panel that
+  stacks on mobile, header that collapses nav into the user menu).
+
+**Verification**: `lint`, `typecheck`, `test` (28), `build` pass; runtime smoke
+confirms custom 404, robots.txt, and sitemap.xml render.
+
+**Next**: Phase 7 — Playwright e2e for the three critical flows, broaden unit
+coverage, finalize README/.env, document Vercel deploy.
