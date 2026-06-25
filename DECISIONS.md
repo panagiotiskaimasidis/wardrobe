@@ -26,3 +26,12 @@ within each phase.
 - **Clip failures degrade to manual entry** — `/api/clip` returns `ok:false` (HTTP 200) with a reason rather than erroring, and the dialog reveals an editable manual form. "Add by URL" is never a dead end.
 - **`CatalogSource` adapter seam (design only)** — the clipper is effectively the first source; affiliate/brand-feed adapters (Rakuten/Awin/Skimlinks) can implement a `search()/getProduct()/normalize()` interface later and feed the same `addClippedProduct` persistence path. Not implemented in the MVP.
 - **colorTags filtering via substring match** — stored as a JSON string; a `contains '"navy"'` LIKE is sufficient and portable for SQLite without a join table. Revisit with a real tag table if tag analytics are needed.
+
+## Phase 3 — Collections + Drag & Drop
+
+- **dnd-kit with three sensors** — `PointerSensor` (8px activation so clicks/taps on card buttons don't start drags), `TouchSensor` (200ms press-delay for a usable mobile path), and `KeyboardSensor` (`sortableKeyboardCoordinates`) for accessible reordering.
+- **Catalog → board is a `useDraggable` source + `useDroppable` board, board items are `useSortable`** — catalog tiles aren't part of the sortable set; dropping one anywhere on the board calls `addItemToCollection`. Reordering uses `arrayMove` + persisted `position`.
+- **Move vs copy across closets via a modifier key** — board items can be dropped onto sibling-closet droppable chips; default is **move**, holding **Alt** switches to **copy** (tracked with a window keydown ref read at drop time). Chosen over a right-click menu so the gesture stays in the drag flow as the brief specifies.
+- **Optimistic DnD with server reconciliation** — add/reorder/move update local state immediately; failures toast + `router.refresh()`. The editor is remounted via a `key` derived from the server item ids so a refresh resets local state to canonical truth (avoids a props→state sync effect the lint rules flag).
+- **Dev login pulled forward into Phase 3** — collections need an owner, so a minimal one-click demo login + bcrypt credentials login was built early. The full Auth.js-style surface (signup, handle picking, profiles, OAuth stub) stays in Phase 4. Documented to keep the phase demoable without skipping ahead.
+- **Activity events written on action** (not derived) — `created_collection` / `added_item` rows are written inside the mutating actions so the Phase 5 feed is a cheap chronological read. Denormalized labels live in the event `metadata` JSON.

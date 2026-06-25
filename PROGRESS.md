@@ -85,3 +85,35 @@ tests (every filter returns correct results; clip API auth guard returns 401)
 all pass.
 
 **Next**: Phase 3 — collection CRUD and the drag-and-drop centerpiece.
+
+## 2026-06-25 — Phase 3: Collections + Drag & Drop ✅
+
+**Done**
+
+- **Collection CRUD**: `/collections` (owner's closets, create dialog, empty
+  state) and `/collections/[id]` (board detail). Server actions
+  (`lib/actions/collections.ts`): create / update / delete / addItem /
+  removeItem / reorder / move-or-copy — all ownership-checked and Zod-validated,
+  writing `created_collection` / `added_item` activity events.
+- **Drag & drop centerpiece** (`@dnd-kit`):
+  - Drag products from a live **catalog panel** (TanStack Query → `/api/catalog`)
+    onto the board to add them (optimistic, with dup guard).
+  - Reorder items within the board (SortableContext, persisted via `position`).
+  - Drag a board item onto another closet to **move** it; hold **Alt** to **copy**.
+  - DragOverlay preview, drop-zone highlighting, empty-board prompt.
+  - Touch sensor (press-delay) for mobile + KeyboardSensor for accessible
+    reordering.
+- Queries (`lib/queries/collections.ts`): list, detail (ordered items),
+  options, plus `canViewCollection` visibility logic (public/friends/private).
+- **Minimal dev login** pulled forward to make the phase demoable: `/login`
+  with one-click demo accounts + email/password (bcrypt). Full auth/profiles
+  land in Phase 4.
+- Collection cards, edit/delete header actions with confirm dialog.
+
+**Verification**: `lint`, `typecheck`, `test` (28), `build` pass. Runtime smoke:
+unauth `/collections` → redirect to login; authed board renders editor + catalog
+panel; `/api/catalog` returns JSON. **Real-browser Playwright check confirmed
+drag-to-add adds an item to the board.**
+
+**Next**: Phase 4 — full auth (signup, handle selection, profile pages + edit),
+and visibility enforcement on profiles.
