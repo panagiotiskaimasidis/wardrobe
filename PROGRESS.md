@@ -27,3 +27,26 @@ Dated entries appended after every phase.
 
 **Next**: Phase 1 — seed script (~10 brands, ~60–100 products, demo users, sample
 collections) so the app boots with real, demoable data.
+
+## 2026-06-25 — Phase 1: Data + seed ✅
+
+**Done**
+
+- Idempotent seed script (`prisma/seed.ts`): 10 brands, 80 products across all 6
+  fashion categories (deterministic placeholder images via picsum, dicebear
+  avatars), 3 demo users (password `password123`), 7 collections with ordered
+  items, 5 follows, 5 likes, 3 comments, and 40 derived activity events so the
+  feed is populated from day one.
+- Client-safe view types (`lib/types.ts`) and a product query/mapper layer
+  (`lib/queries/products.ts`: `toProductView`, `getRecentProducts`,
+  `getCatalogStats`) so Prisma types never leak into the client.
+- Reusable presentational `ProductCard`.
+- Landing page now boots with **real seeded data** — live catalog counts and a
+  "Fresh in the catalog" grid (verified at runtime).
+- Unit tests for color-tag/category/format/`cn` helpers (14 tests).
+
+**Verification**: `lint`, `typecheck`, `test`, and a runtime dev-server smoke
+test (home page renders seeded products + stats) all pass.
+
+**Next**: Phase 2 — catalog browse/search/filter pages and the "Add by URL"
+metadata clipper.

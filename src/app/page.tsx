@@ -2,7 +2,9 @@ import Link from "next/link";
 import { Shirt, MousePointerClick, Link2, Users } from "lucide-react";
 
 import { getCurrentUser } from "@/lib/auth/session";
+import { getCatalogStats, getRecentProducts } from "@/lib/queries/products";
 import { Button } from "@/components/ui/button";
+import { ProductCard } from "@/components/product-card";
 import {
   Card,
   CardContent,
@@ -30,7 +32,11 @@ const FEATURES = [
 ];
 
 export default async function HomePage() {
-  const user = await getCurrentUser();
+  const [user, stats, recent] = await Promise.all([
+    getCurrentUser(),
+    getCatalogStats(),
+    getRecentProducts(8),
+  ]);
 
   return (
     <div className="mx-auto max-w-6xl px-4">
@@ -60,7 +66,29 @@ export default async function HomePage() {
             </Button>
           )}
         </div>
+        <p className="text-muted-foreground text-sm">
+          {stats.products.toLocaleString()} items · {stats.brands} brands ·{" "}
+          {stats.collections} public closets
+        </p>
       </section>
+
+      {recent.length > 0 && (
+        <section className="pb-16">
+          <div className="mb-4 flex items-end justify-between">
+            <h2 className="text-xl font-semibold tracking-tight">
+              Fresh in the catalog
+            </h2>
+            <Button asChild variant="link" size="sm">
+              <Link href="/catalog">View all →</Link>
+            </Button>
+          </div>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {recent.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="grid gap-4 pb-24 sm:grid-cols-3">
         {FEATURES.map((f) => (
