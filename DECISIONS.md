@@ -56,3 +56,9 @@ within each phase.
 - **Browser path is environment-overridable** — `PW_CHROMIUM_PATH` lets sandboxes point at a preinstalled Chromium; normal CI uses `playwright install`. Keeps the config portable.
 - **Flow 1 e2e uses the manual-entry path** — clipping a live external URL is non-deterministic (network, robots, rate limits), so the e2e drives the clip dialog's manual fallback to assert the persistence path deterministically; the parser itself is covered by unit tests.
 - **Known sandbox note** — `next/image` optimization of remote demo images (picsum/dicebear) requires outbound network; in restricted sandboxes those fetches 403 but never affect functionality or tests.
+
+## Deploy prep — dual-provider (SQLite dev / Postgres prod)
+
+- **Adapter chosen at runtime from `DATABASE_URL`** — `makePrismaAdapter` returns the Postgres adapter for `postgres(ql)://` URLs and better-sqlite3 otherwise, so the same app code runs in both environments with no edits. The seed script mirrors the same logic.
+- **Two schema files, identical models** — Prisma can't switch `datasource.provider` via env, so `prisma/schema.postgres.prisma` mirrors `schema.prisma` with only the provider changed (all fields use portable types: strings for enums, JSON-string for colorTags). Local dev/tests stay on SQLite; `vercel-build` generates + `db push`es the Postgres schema.
+- **`vercel-build` script** — `prisma generate --schema=…postgres && prisma db push --schema=…postgres --accept-data-loss && next build`. `db push` (not migrations) keeps the prototype deploy one-step; documented to switch to `migrate deploy` for real production. Seeding is intentionally a one-time manual step, never in the build, so deploys don't wipe data.

@@ -78,12 +78,19 @@ accounts and their passwords are printed by `npm run db:seed`.
 See [`.env.example`](./.env.example). The only one you may want to set for real is
 `AUTH_SECRET` (used to sign session cookies). Everything else has dev defaults.
 
-## Switching to PostgreSQL
+## SQLite (dev) vs PostgreSQL (production)
 
-1. In `prisma/schema.prisma`, change `datasource db { provider = "postgresql" }`.
-2. Set `DATABASE_URL` to your Postgres connection string.
-3. In `src/lib/db.ts`, swap `@prisma/adapter-better-sqlite3` for `@prisma/adapter-pg`.
-4. Run `npm run db:migrate`.
+The app supports both with **no code changes** — `src/lib/db.ts` picks the Prisma
+driver adapter from the `DATABASE_URL` scheme (`file:` → SQLite, `postgres://` →
+Postgres). There are two schema files with identical models (only the datasource
+provider differs):
+
+- `prisma/schema.prisma` — SQLite, used for local dev (`npm run db:push`).
+- `prisma/schema.postgres.prisma` — PostgreSQL, used in production
+  (`npm run db:push:pg`, and the `vercel-build` script).
+
+To run locally against Postgres instead of SQLite: set `DATABASE_URL` to your
+connection string and run `npm run db:push:pg && npm run db:seed:pg`.
 
 ## Testing
 
@@ -96,17 +103,36 @@ See [`.env.example`](./.env.example). The only one you may want to set for real 
   `npx playwright install --with-deps chromium` first. If you have a preinstalled
   Chromium, point at it with `PW_CHROMIUM_PATH=/path/to/chrome`.
 
-## Deploying to Vercel
+## Deploying to Vercel (get a public link)
 
-> Not auto-deployed here. Steps:
+The repo is prepped for a near one-click deploy. You provide a Vercel account and
+a hosted Postgres; everything else is wired.
 
-1. Push the repo to GitHub and import it in Vercel.
-2. Provision a Postgres database (Vercel Postgres, Neon, Supabase, …) and follow
-   "Switching to PostgreSQL" above.
-3. Set environment variables in Vercel: `DATABASE_URL`, `AUTH_SECRET`, and
-   optionally `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`.
-4. Build command `npm run build`, install command `npm install`. Run
-   `prisma migrate deploy` as part of the build so the schema is applied.
+1. **Push to GitHub** (this branch already is) and **Import the repo** at
+   [vercel.com/new](https://vercel.com/new).
+2. **Add a Postgres database**: in the Vercel project → _Storage_ → create a
+   Postgres database (Vercel Postgres / Neon), or use any provider (Supabase,
+   Neon, …). Vercel auto-injects `DATABASE_URL` when you use its Storage tab; for
+   an external DB, add `DATABASE_URL` yourself.
+3. **Set environment variables** (Project → Settings → Environment Variables):
+   - `DATABASE_URL` — your Postgres connection string (if not auto-added).
+   - `AUTH_SECRET` — run `openssl rand -base64 32` and paste the result.
+   - `NEXT_PUBLIC_SITE_URL` — your Vercel URL (e.g. `https://wardrobe-xxx.vercel.app`).
+   - _(optional)_ `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`.
+4. **Set the Build Command** to `npm run vercel-build` (Project → Settings →
+   Build & Development). This runs `prisma generate` + `prisma db push` against
+   the Postgres schema, then `next build`. Install command stays `npm install`.
+5. **Deploy.** Open the resulting `https://…vercel.app` URL on your phone.
+6. _(optional, recommended)_ **Load demo data once** so the app isn't empty —
+   from your machine, pointing at the same DB:
+   ```bash
+   DATABASE_URL="<your-postgres-url>" npm run db:seed:pg
+   ```
+   Demo logins are then available (password `password123`), or just sign up.
+
+> Notes: `vercel-build` uses `prisma db push` (great for a prototype). For a
+> long-lived production app, switch to migrations (`prisma migrate deploy`).
+> Don't run the seed on every deploy — it resets data (it's idempotent/wipes).
 
 ## Project structure
 
